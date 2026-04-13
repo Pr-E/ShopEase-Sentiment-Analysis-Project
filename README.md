@@ -153,7 +153,7 @@ GET /
 
 ```json id="api002"
 {
-  "message": "Sentiment API is running 🚀"
+  "message": "Sentiment API is running"
 }
 ```
 
