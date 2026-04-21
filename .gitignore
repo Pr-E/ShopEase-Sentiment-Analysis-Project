@@ -225,3 +225,4 @@ mlruns/
 *.pt
 *.bin
 *.model
+mlflow.db/
