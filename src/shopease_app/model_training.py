@@ -3,8 +3,7 @@ import logging
 import numpy as np
 from transformers import AutoModelForSequenceClassification, Trainer
 from sklearn.metrics import accuracy_score, f1_score
-
-from src.shopease_app.data_preprocessing import prepare_sentiment_data
+from src.shopease_app.data_preprocessing import prepare_sentiment_data   
 from config.constant import model_name, training_args, num_of_labels
 
 logging.basicConfig(level=logging.INFO)
@@ -62,26 +61,24 @@ class Training:
             raise
 
 
+
 def train_and_evaluate():
     try:
         train_dataset, test_dataset = prepare_sentiment_data()
 
         train = Training()
 
-        trainer = train.model_training(
-            train_dataset=train_dataset,
-            test_dataset=test_dataset
-        )
+        trainer = train.model_training(train_dataset, test_dataset)
 
         results = train.model_evaluation(trainer)
 
-        logging.info("Model Successfully Trained and Evaluated.")
-        
+        logging.info(results)
+
         return results, trainer
 
     except Exception as e:
-        logging.error(f"Error Occurred While Training and Evaluating Model: {e}")
-        raise
+        logging.error(e)
+        raise    
 
 
 # ENTRY POINT

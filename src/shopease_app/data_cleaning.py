@@ -18,9 +18,9 @@ class DataCleaning:
         self._ensure_nltk()
         self.nlp = self._load_nlp()
 
-    # ----------------------------
+ 
     # Load spaCy model safely
-    # ----------------------------
+  
     def _load_nlp(self):
         for model in ("en_core_web_sm", "xx_ent_wiki_sm"):
             try:
@@ -29,9 +29,9 @@ class DataCleaning:
                 continue
         return spacy.blank("xx")
 
-    # ----------------------------
+
     # Ensure NLTK resources
-    # ----------------------------
+
     def _ensure_nltk(self):
         try:
             stopwords.words("english")
@@ -51,27 +51,27 @@ class DataCleaning:
             except Exception:
                 pass
 
-    # ----------------------------
+ 
     # CLEAN TEXT
-    # ----------------------------
+
     def clean_text(self, text: str) -> str:
         text = str(text).lower()
         text = re.sub(r"[^a-zA-ZÀ-ÿ0-9\s]", "", text)
         text = re.sub(r"\s+", " ", text).strip()
         return text
 
-    # ----------------------------
+
     # LEMMATIZATION
-    # ----------------------------
+
     def lemmatize(self, text: str) -> str:
         doc = self.nlp(text)
         return " ".join(
             token.lemma_ if token.lemma_ else token.text for token in doc
         )
 
-    # ----------------------------
+
     # STOPWORD REMOVAL
-    # ----------------------------
+
     def remove_stopwords(self, text: str) -> str:
         tokens = word_tokenize(text)
         sw = set(stopwords.words("english"))
@@ -79,9 +79,9 @@ class DataCleaning:
         return " ".join(tokens)
 
 
-# ----------------------------
+
 # PIPELINE FUNCTION
-# ----------------------------
+
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     try:
         cleaner = DataCleaning()
@@ -90,14 +90,14 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
         df["lemma_text"] = df["clean_text"].apply(cleaner.lemmatize)
         df["final_text"] = df["lemma_text"].apply(cleaner.remove_stopwords)
 
-        # ----------------------------
+  
         # SENTIMENT LABEL CREATION
-        # ----------------------------
+      
         df["sentiment_label"] = df["rating"].apply(
             lambda r: 0 if r in [1, 2] else (1 if r == 3 else 2)
         )
 
-        # Keep only relevant columns
+        # Relevant columns
         df = df[["review", "final_text", "sentiment_label"]]
 
         # Save cleaned data
@@ -112,9 +112,9 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
         raise
 
 
-# ----------------------------
+
 # ENTRY POINT
-# ----------------------------
+
 if __name__ == "__main__":
     df = data_ingestion()
     df = clean_data(df)

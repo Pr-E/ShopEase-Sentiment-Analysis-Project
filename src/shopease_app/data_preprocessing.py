@@ -1,4 +1,4 @@
-from transformers import BertTokenizer
+from transformers import AutoTokenizer
 import pandas as pd
 import torch
 import logging
@@ -6,40 +6,39 @@ import os
 
 from sklearn.model_selection import train_test_split
 
-from config.constant import Input_Data, Cleaned_Data, model_name, truncation, max_length, padding, Train_Data, Test_Data
-from src.shopease_app.data_cleaning import clean_data
-logging.basicConfig(level=logging.INFO)
+from config.constant import (
+    Input_Data,
+    model_name,
+    truncation,
+    max_length,
+    padding,
+    Train_Data,
+    Test_Data
+)
 
+from src.shopease_app.data_cleaning import clean_data
+
+logging.basicConfig(level=logging.INFO)
 
 
 # DATA PROCESSOR
 
 class DataProcessor:
     def __init__(self):
-        try:
-            if os.path.exists(Cleaned_Data):
-                logging.info("Loading cleaned data from file...")
-                self.data = pd.read_csv(Cleaned_Data)
-            else:
-                logging.info("Cleaned data not found. Running cleaning pipeline...")
-                raw_data = pd.read_csv(Input_Data)
-                self.data = clean_data(raw_data)
-
-        except Exception as e:
-            logging.error(f"Error loading data: {e}")
-            raise
+        # Clean + load data
+        self.data = clean_data(pd.read_csv(Input_Data))
 
     def split_data(self):
         try:
             X = self.data["final_text"].astype(str)
             y = self.data["sentiment_label"]
 
-            # Verify class label
             logging.info("Label distribution:")
             logging.info(self.data["sentiment_label"].value_counts())
 
             X_train, X_test, y_train, y_test = train_test_split(
-                X, y,
+                X,
+                y,
                 test_size=0.2,
                 random_state=42,
                 stratify=y
@@ -57,8 +56,8 @@ class DataProcessor:
 
 class Tokenizer:
     def __init__(self):
-        self.tokenizer = BertTokenizer.from_pretrained(model_name)
-        
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+
     def encode(self, text):
         return self.tokenizer(
             text.tolist(),
@@ -68,7 +67,7 @@ class Tokenizer:
             return_tensors="pt"
         )
 
-    def save(self, path="./sentiment_model"):
+    def save(self, path="./sentiment_model"):  # Save tokenizer
         os.makedirs(path, exist_ok=True)
         self.tokenizer.save_pretrained(path)
         logging.info("Tokenizer saved successfully.")
@@ -90,19 +89,16 @@ class SentimentDataset(torch.utils.data.Dataset):
         return item
 
 
-
-# PREP FUNCTION
+# PREPARATION FUNCTION
 
 def prepare_sentiment_data():
     try:
         processor = DataProcessor()
         X_train, X_test, y_train, y_test = processor.split_data()
 
-        # Ensure labels are lists
-        if hasattr(y_train, 'tolist'):
-            y_train = y_train.tolist()
-        if hasattr(y_test, 'tolist'):
-            y_test = y_test.tolist()
+        # Convert labels safely
+        y_train = y_train.tolist() if hasattr(y_train, "tolist") else y_train
+        y_test = y_test.tolist() if hasattr(y_test, "tolist") else y_test
 
         tokenizer = Tokenizer()
 
@@ -112,15 +108,18 @@ def prepare_sentiment_data():
         train_dataset = SentimentDataset(train_encodings, y_train)
         test_dataset = SentimentDataset(test_encodings, y_test)
 
-        # SAVE DATASETS
+        # Save datasets
         os.makedirs(os.path.dirname(Train_Data), exist_ok=True)
         os.makedirs(os.path.dirname(Test_Data), exist_ok=True)
+
         torch.save(train_dataset, Train_Data)
         torch.save(test_dataset, Test_Data)
 
+        # Save tokenizer ONCE here
         tokenizer.save("./sentiment_model")
-        
-        logging.info(f"Data Successfully Prepared and Saved.")
+
+        logging.info("Data successfully prepared and saved.")
+
         return train_dataset, test_dataset
 
     except Exception as e:
@@ -130,6 +129,8 @@ def prepare_sentiment_data():
 
 # ENTRY POINT
 
+
 if __name__ == "__main__":
     train_dataset, test_dataset = prepare_sentiment_data()
     print(train_dataset[0])
+

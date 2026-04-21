@@ -1,0 +1,19 @@
+services:
+
+  backend:
+    image: priscejiro27/shopease-backend:latest
+    container_name: shopease-backend
+    ports:
+      - "8001:8000"
+    restart: always
+
+  frontend:
+    image: priscejiro27/shopease-app-frontend:latest
+    container_name: shopease-frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://backend:8000
+    depends_on:
+      - backend
+    restart: always

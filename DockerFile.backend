@@ -1,0 +1,34 @@
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Prevent Python from writing pyc files
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip
+RUN pip install --upgrade pip
+
+# Copy requirements
+COPY requirements_backend.txt .
+
+# Install PyTorch CPU + requirements
+RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir -r requirements_backend.txt
+
+# Copy app
+COPY . .
+
+# Expose API port
+EXPOSE 8000
+
+# Run FastAPI
+
+CMD ["sh", "-c", "uvicorn main.app:app --host 0.0.0.0 --port ${PORT:-8000}"]

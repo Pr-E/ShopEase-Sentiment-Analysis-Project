@@ -1,0 +1,12 @@
+results/
+mlflow.db/
+requirements.txt
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.git
+.gitignore
+venv/
+shopease_env/
+Data/
