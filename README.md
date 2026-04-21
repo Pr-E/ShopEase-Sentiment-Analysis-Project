@@ -1,303 +1,167 @@
-# 🛍️ ShopEase Sentiment Analysis Project
+# 🛍️ ShopEase Sentiment Analysis System
 
-An end-to-end **NLP system and ML engineering project** that classifies customer reviews into **negative, neutral, and positive sentiment** using both:
-
-* Traditional Machine Learning (TF-IDF + Logistic Regression)
-* Transformer-based Deep Learning (DistilBERT)
-
-The project demonstrates the full lifecycle of turning raw text data into a **production-ready sentiment analysis API service**.
+An end-to-end NLP-powered system that transforms raw customer reviews into actionable business insights — deployed as a production-ready API and interactive dashboard.
 
 ---
 
-# 🚀 Project Overview
+## 🚀 Overview
 
-Customer reviews contain valuable insights about:
+Customer reviews are one of the richest sources of business intelligence — but they are:
 
-* Satisfaction levels
-* Product quality
-* Service performance
+- Unstructured  
+- Multilingual  
+- High-volume  
+- Difficult to analyze manually  
 
-This system is designed to:
+This project solves that by building a **scalable sentiment analysis pipeline** that:
 
-* Automate sentiment detection at scale
-* Extract business insights from multilingual reviews
-* Provide real-time predictions via an API service
-
----
-
-# 🧪 Experimentation Phase (Model Exploration)
-
-Before building the final system, multiple modeling approaches were tested:
-
-## 🔹 Baseline Model
-
-* TF-IDF Vectorization
-* Logistic Regression classifier
-* Used as a performance benchmark
-
-## 🔹 Advanced Model
-
-* DistilBERT (`distilbert-base-multilingual-cased`)
-* Fine-tuned using HuggingFace Trainer API
-* Context-aware semantic understanding
+- Classifies reviews into **Negative, Neutral, Positive**  
+- Supports multilingual input  
+- Provides real-time predictions via API  
+- Visualizes results through an interactive dashboard  
 
 ---
 
-# 🧹 Data Processing Pipeline
+## 🎯 Business Objective
 
-## 1. Data Ingestion
+> Convert unstructured customer feedback into structured insights that improve customer satisfaction and drive revenue.
 
-* Loaded raw CSV dataset
+This system enables businesses to:
 
-## 2. Data Cleaning
-
-* Lowercasing text
-* Removing special characters
-* Lemmatization (spaCy)
-* Stopword removal (NLTK)
-
-## 3. Label Engineering
-
-| Rating | Sentiment   |
-| ------ | ----------- |
-| 1–2    | Negative 😡 |
-| 3      | Neutral 😐  |
-| 4–5    | Positive 😍 |
+- Identify pain points from negative reviews  
+- Detect satisfaction drivers  
+- Monitor sentiment trends at scale  
+- Make data-driven product and service decisions  
 
 ---
 
-## 4. Tokenization
+## 🧠 Model Development
 
-* HuggingFace tokenizer (`AutoTokenizer`)
-* Padding + truncation to fixed sequence length
-* Conversion to PyTorch tensors
+### 🔹 Baseline Model
+- TF-IDF + Logistic Regression  
+- Achieved ~97% accuracy  
+- Strong class balance (F1-score ~0.95)  
 
----
+### 🔹 Advanced Model
+- Transformer: `distilbert-base-multilingual-cased`  
+- Handles multilingual reviews  
+- Captures contextual meaning  
 
-# 🧠 Model Training
+### ✅ Final Choice
+BERT-based model selected for:
 
-## Architecture
-
-* Base Model: DistilBERT
-* Task: Sequence Classification
-* Loss Function: CrossEntropyLoss
-* Optimizer: AdamW
-* Epochs: 5
-
-## Training Strategy
-
-* Stratified train-test split
-* Weighted F1-score evaluation
-* Early validation after each epoch
+- Contextual understanding  
+- Multilingual capability  
+- Production scalability  
 
 ---
 
-## 📊 Performance Results
+## ⚙️ System Architecture
 
-| Metric   | Score        |
-| -------- | ------------ |
-| Accuracy | ~0.70 – 0.75 |
-| F1 Score | ~0.57 – 0.67 |
 
-> Note: Performance reflects a small dataset with strong class imbalance.
-
----
-
-# ⚙️ SYSTEM ARCHITECTURE (PRODUCTION DESIGN)
-
-```text id="arch001"
-User Input
-   ↓
-FastAPI Endpoint
-   ↓
-Text Preprocessing (Cleaning Pipeline)
-   ↓
-Tokenizer (HuggingFace)
-   ↓
-Fine-tuned DistilBERT Model
-   ↓
-Prediction Layer
-   ↓
-JSON Response (Label + Confidence)
-```
+User Input (Streamlit UI)
+↓
+FastAPI Backend (Inference Layer)
+↓
+MLflow Model Registry (DagsHub)
+↓
+Transformer Model (BERT)
+↓
+Prediction Output (Sentiment + Confidence)
 
 ---
 
-# 🌐 API DEVELOPMENT PHASE (PRODUCTION DEPLOYMENT)
-
-After model experimentation, the system was deployed using **FastAPI** to enable real-time inference.
-
----
-
-## 📦 API Design Principles
-
-* Modular architecture
-* Reusable preprocessing pipeline
-* Stateless inference requests
-* Scalable REST API design
-* Consistent training vs inference processing
-
----
-
-## 🚀 API Endpoints
-
----
+## 🔌 API Endpoints
 
 ### 🔹 Health Check
 
-```http id="api001"
 GET /
-```
 
-#### Response:
-
-```json id="api002"
-{
-  "message": "Sentiment API is running"
-}
-```
 
 ---
 
 ### 🔹 Single Prediction
 
-```http id="api003"
-POST /predict
-```
+POST /predict_sentiment
 
-#### Request:
-
-```json id="api004"
+#### Request
+```json
 {
-  "text": "This product is amazing!"
+  "text": "I love this product!"
 }
-```
-
-#### Response:
-
-```json id="api005"
+Response
 {
-  "label": "positive",
-  "class_id": 2,
-  "confidence": 0.91
+  "label": "Positive",
+  "confidence": 0.98
 }
-```
 
----
-
-### 🔹 Batch Prediction
-
-```http id="api006"
+🔹 Batch Prediction (CSV Upload)
 POST /predict_batch
-```
+Input Format
 
-#### Request:
+CSV file with column:
 
-```json id="api007"
-{
-  "texts": [
-    "I love it",
-    "It is okay",
-    "Worst purchase ever"
-  ]
-}
-```
+review
+Output
 
-#### Response:
+Returns predictions for each review.
 
-```json id="api008"
-{
-  "predictions": [
-    {
-      "label": "positive",
-      "class_id": 2,
-      "confidence": 0.91
-    },
-    {
-      "label": "neutral",
-      "class_id": 1,
-      "confidence": 0.60
-    },
-    {
-      "label": "negative",
-      "class_id": 0,
-      "confidence": 0.84
-    }
-  ]
-}
-```
+📊 Streamlit Dashboard
 
----
+Features:
 
-## ⚙️ API Features
+Single review prediction
+Batch CSV upload
+Real-time sentiment classification
+Confidence scoring
+🐳 Dockerization
 
-* Real-time inference
-* Batch processing support
-* Consistent preprocessing pipeline
-* Confidence score output
-* Robust error handling
+The system is fully containerized.
 
----
+Services:
+Backend → FastAPI
+Frontend → Streamlit
+Run locally:
+docker compose up
+☁️ Deployment
 
-## 🧪 API Testing
+Deployed using Render as two services:
 
-You can test the API using:
+Backend → FastAPI Web Service
+Frontend → Streamlit Web Service
 
-* Swagger UI → `http://127.0.0.1:8000/docs`
-* Postman
-* cURL
+🧰 Tech Stack
+🔹 Machine Learning
+Transformers (Hugging Face)
+Scikit-learn
+PyTorch
+🔹 Backend
+FastAPI
+Uvicorn
+🔹 Frontend
+Streamlit
+🔹 MLOps
+MLflow
+DagsHub
+🔹 Deployment
+Docker
+Docker Compose
+Render
 
----
+📈 Key Results
+Accuracy: ~97%
+Balanced performance across all classes
+Strong generalization on unseen data
+Real-time inference capability
 
-# 🧱 PROJECT STRUCTURE
+💡 Key Learnings
+Simple models can perform as well as complex ones
+Contextual models improve real-world usability
+Deployment is as important as model performance
+End-to-end systems create real business value
 
-```bash id="api009"
-src/
- └── shopease_app/
-     ├── data_ingestion.py
-     ├── data_cleaning.py
-     ├── data_preprocessing.py
-     ├── model_training.py
-     ├── api/
-         ├── main.py
-         ├── inference.py
-         ├── schemas.py
-```
-
----
-
-# ▶️ HOW TO RUN
-
-## 1. Install dependencies
-
-```bash id="api010"
-pip install -r requirements.txt
-```
-
-## 2. Train model
-
-```bash id="api011"
-python -m src.shopease_app.model_training
-```
-
-## 3. Start API
-
-```bash id="api012"
-uvicorn src.shopease_app.api.main:app --reload
-```
-
-## 4. Open API Docs
-
-```text id="api013"
-http://127.0.0.1:8000/docs
-```
-
----
-
-# 🔁 END-TO-END PIPELINE
-
-```text id="api014"
-Raw Reviews → Cleaning → Tokenization → Model → FastAPI → JSON Output
-```
-
----
+🔮 Future Improvements
+Sentiment trend analytics dashboard
+Topic modeling for root-cause analysis
+Real-time streaming (Kafka integration)
+Model optimization for faster inference
