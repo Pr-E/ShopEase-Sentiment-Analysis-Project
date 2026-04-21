@@ -127,9 +127,9 @@ The system is fully containerized.
 - Frontend → Streamlit  
 
 ### ▶️ Run locally:
-```bash
-docker compose up
 
+#### ```bash
+docker compose up
 
 ## ☁️ Deployment
 
