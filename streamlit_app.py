@@ -5,9 +5,9 @@ import os
 
 # API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
 
-# API_URL = os.getenv("API_URL", "http://backend:8000")  #3rd
+API_URL = os.getenv("API_URL", "http://backend:8000")  #3rd
 
-API_URL = "https://shopease-backend.onrender.com"
+# API_URL = "https://shopease-backend.onrender.com"
 
 #API_URL = os.getenv("API_URL", "http://localhost:8000")
 
